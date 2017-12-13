@@ -31,9 +31,6 @@ def trim(msg, filter_format = msg_filters_format):
                 words +=  word.split()
 
     tweet = " ".join(words)
-    #tweet = re.sub("[^a-z0-9\&\#\@\/'\: ]+", '', tweet)
-    
-    #print "trimmed: ",tweet
     
     return tweet#,msg
 
@@ -66,6 +63,10 @@ def collect(search_query,max_tweets):
                 break
 
             for msg in new_tweets:
+                if msg.lang != "en":
+                    #print msg.text.encode("utf-8")
+                    continue
+
                 msg_text = msg.text.encode("utf-8")
                 user_id = msg.user.id
 
@@ -123,6 +124,5 @@ if __name__ == '__main__':
     tweets = collect(hashtag,search_number)
     df = pd.DataFrame(tweets)
     df = df[['user_id','trimmed_tweet','original_tweet']]
-    #print df
+
     df.to_csv(hashtag + '.csv',sep=',',index = False)
-    #print tweets
