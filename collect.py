@@ -6,29 +6,29 @@ import jsonpickle, sys, re, collections, math, os
 api_key = "nEHpCxgQjOLpfHXAAmlWzxwYF"
 api_secret = "Sfa8e7tZPC4gDS2QYVQ3ykqMYHsC7gNhbaWtBTeXwMhbAbIAcO"
 
-msg_filters_format = ["https", "&", "rt", "@"]
+msg_filters_format = ["https", "&", "RT", "@"]
 msg_filters_out = ["#Ad"]
 
 #trim unnecessary elements and split msg
 #data preparation for training
 def trim(msg, filter_format = msg_filters_format):	
-    #print "original:",msg
-    msg = re.sub("[^a-z0-9\&\#\@\/'\: ]+", ' ', msg.lower())
+
+    msg = re.sub("[^\w\@\#\$\%\&\.\/'\\ ]+", '', msg)
     words = []
     
     for word in msg.split():
-        #for format in msg_filters_format:
+        #check if word contain any one of the special format
         if all(word.find(format) != 0 for format in msg_filters_format):
-            word = re.sub("[^a-z0-9\&\#\@\/'\: ]+", '', word)
-            if not word:
-                continue
+
             if word[0] == "'":
                 word = word[1:]
-            if word != "" and word[-1] == "'":
+
+            if word and word[-1] == "'":
                 word = word[:-1]
 
             if word:
-                words.append(word)
+                word = re.sub("[.]+",' ',word)
+                words +=  word.split()
 
     tweet = " ".join(words)
     #tweet = re.sub("[^a-z0-9\&\#\@\/'\: ]+", '', tweet)
@@ -79,8 +79,6 @@ def collect(search_query,max_tweets):
                     continue
                 #modify tweet
                 tweet = trim(msg_text)
-                #print "u_id:", user_id, "tweet:",tweet
-                
                 tweets.append({"user_id":str(user_id),"trimmed_tweet":tweet,"original_tweet":msg_text})
 
             tweet_count += len(new_tweets)
@@ -107,8 +105,8 @@ if __name__ == '__main__':
     args = sys.argv[1:]
     
     if args == []:
-        args.append(2000)
-        args.append('#Trump')
+        search_number = 2000
+        hashtag = '#Trump'
     elif len(args) == 2:
         hashtag = "#" + re.sub('[^a-zA-Z0-9]+', '', args[1])
         search_number = int(args[0])
@@ -126,5 +124,5 @@ if __name__ == '__main__':
     df = pd.DataFrame(tweets)
     df = df[['user_id','trimmed_tweet','original_tweet']]
     #print df
-    df.to_csv('tweets.csv',sep=',',index = False)
+    df.to_csv(hashtag + '.csv',sep=',',index = False)
     #print tweets
