@@ -6,7 +6,7 @@ import jsonpickle, sys, re, collections, math, os
 api_key = "nEHpCxgQjOLpfHXAAmlWzxwYF"
 api_secret = "Sfa8e7tZPC4gDS2QYVQ3ykqMYHsC7gNhbaWtBTeXwMhbAbIAcO"
 
-msg_filters_format = ["https", "&", "RT", "@"]
+msg_filters_format = ["https", "&", "RT", "@", "#"]
 msg_filters_out = ["#Ad"]
 
 #trim unnecessary elements and split msg
@@ -30,8 +30,10 @@ def trim(msg, filter_format = msg_filters_format):
                 word = re.sub("[.]+",' ',word)
                 words +=  word.split()
 
+    if len(words) <= 5:
+        return
+
     tweet = " ".join(words)
-    
     return tweet#,msg
 
 def collect(search_query,max_tweets):
@@ -80,7 +82,8 @@ def collect(search_query,max_tweets):
                     continue
                 #modify tweet
                 tweet = trim(msg_text)
-                tweets.append({"user_id":str(user_id),"trimmed_tweet":tweet,"original_tweet":msg_text})
+                if tweet:
+                    tweets.append({"user_id":str(user_id),"trimmed_tweet":tweet,"original_tweet":msg_text})
 
             tweet_count += len(new_tweets)
             max_id = new_tweets[-1].id
